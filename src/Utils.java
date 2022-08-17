@@ -1,93 +1,98 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Utils {
 
-    public static boolean checkIfRomeDigits(String inputString) {
+    public boolean checkIfRomeDigits(String inputString) {
         return Arrays.stream(Calculator.ROME_DIGITS).anyMatch(inputString::contains);
     }
 
-    public static boolean checkIfArabicDigits(String inputString) {
+    public boolean checkIfArabicDigits(String inputString) {
         return Arrays.stream(Calculator.ARABIC_DIGITS).anyMatch(inputString::contains);
     }
 
-    public static int switchToArabic(String inputString) {
-        int result;
+    public String getOperationFromInput(String inputString) {
+        String operation = "";
+        long counter = 0;
 
-        result = switch (inputString) {
-            case "I" -> 1;
-            case "II" -> 2;
-            case "III" -> 3;
-            case "IV" -> 4;
-            case "V" -> 5;
-            case "VI" -> 6;
-            case "VII" -> 7;
-            case "VIII" -> 8;
-            case "IX" -> 9;
-            case "X" -> 10;
-            default -> throw new IllegalStateException("Неправильный ввод, используются " +
-                    "одновременно разные системы счисления");
-        };
+        if (inputString.contains("+")) {
+            operation = "+";
+            counter = inputString.codePoints().filter(ch -> ch == '+').count();
+        } else if (inputString.contains("-")) {
+            operation = "-";
+            counter = inputString.codePoints().filter(ch -> ch == '-').count();
+        } else if (inputString.contains("*")) {
+            operation = "*";
+            counter = inputString.codePoints().filter(ch -> ch == '*').count();
+        } else if (inputString.contains("/")) {
+            operation = "/";
+            counter = inputString.codePoints().filter(ch -> ch == '/').count();
+        }
 
-        return result;
+        if (counter > 1) {
+            throw new IllegalStateException("Неверный ввод, формат математической операции " +
+                    "не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
+        }
+
+        return operation;
     }
 
-    public static String swithToRome(int arabicResult) {
-        int thousands = arabicResult / 1000;
-        int hundreds = (arabicResult - (thousands * 1000)) / 100;
-        int tens = (arabicResult - (thousands * 1000)) % 100 / 10;
-        int units = (arabicResult - (thousands * 1000)) % 10;
-        String romeResult = "";
-        for (int i = 0; i < thousands; i++) {
-            romeResult += 'M';
+    public int[] parseNumbersFromInput(String inputString) {
+        boolean isRomeDigit = checkIfRomeDigits(inputString);
+        boolean isArabicDigit = checkIfArabicDigits(inputString);
+        String[] input = {inputString};
+        int[] operands = new int[2];
+
+        String[] digits = Arrays.stream(input)
+                .map(string -> string.replaceAll(" ", ""))
+                .flatMap(string -> Stream.of(string.toUpperCase(Locale.ROOT).split("[+\\-*/]")))
+                .collect(Collectors.joining(",")).split(",");
+
+        try {
+            if (isRomeDigit) {
+                operands[0] = Converters.switchToArabicDigits(digits[0]);
+                operands[1] = Converters.switchToArabicDigits(digits[1]);
+            } else if (isArabicDigit) {
+                operands[0] += Integer.parseInt(digits[0]);
+                operands[1] += Integer.parseInt(digits[1]);
+                if (operands[0] > 10 || operands[1] > 10) {
+                    throw new IllegalArgumentException("Неверный ввод, " +
+                            "одно из чисел больше 10 ");
+                }
+            } else {
+                throw new NumberFormatException("Неправильный ввод, " +
+                        "строка не является математической операцией ");
+            }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            System.out.println("Кажется, вы не ввели операцию " +
+                    "и слишком рано нажали Enter");
         }
+        return operands;
+    }
 
-        if (hundreds < 4) {
-            for (int i = 0; i < hundreds; i++) {
-                romeResult += 'C';
-            }
-        } else if (hundreds == 4) {
-            romeResult += "CD";
-
-        } else if (hundreds >= 5 && hundreds < 9) {
-            romeResult += 'D';
-            for (int i = 0; i < hundreds - 5; i++) {
-                romeResult += 'C';
-            }
-        } else if (hundreds == 9) {
-            romeResult += "CM";
+    public String inputFromConsole() throws IOException {
+        String string;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+            string = reader.readLine();
+            reader.close();
         }
-
-        if (tens < 4) {
-            for (int i = 0; i < tens; i++) {
-                romeResult += 'X';
-            }
-        } else if (tens == 4) {
-            romeResult += "XL";
-        } else if (tens >= 5 && tens < 9) {
-            romeResult += 'L';
-            for (int i = 0; i < tens - 5; i++) {
-                romeResult += 'X';
-            }
-        } else if (tens == 9) {
-            romeResult += "XC";
+        if (string.isEmpty()) {
+            throw new IllegalArgumentException("Вы ввели пустую строку");
         }
+        return string;
+    }
 
-        if (units < 4) {
-            for (int i = 0; i < units; i++) {
-                romeResult += 'I';
-            }
-        } else if (units == 4) {
-            romeResult += "IV";
-
-        } else if (units >= 5 && units < 9) {
-            romeResult += 'V';
-            for (int i = 0; i < units - 5; i++) {
-                romeResult += 'I';
-            }
-        } else if (units == 9) {
-            romeResult += "IX";
+    public void outputInConsole(String input, String result) {
+        if (checkIfRomeDigits(input)) {
+            String romeResult = Converters.switchToRomeDigits(Integer.parseInt(result));
+            System.out.println(romeResult);
+        } else if (checkIfArabicDigits(input)) {
+            System.out.println(result);
         }
-
-        return romeResult;
     }
 }
