@@ -57,13 +57,10 @@ public class Utils {
             if (isRomeDigit) {
                 operands[0] = Converters.switchToArabicDigits(digits[0]);
                 operands[1] = Converters.switchToArabicDigits(digits[1]);
+
             } else if (isArabicDigit) {
                 operands[0] += Integer.parseInt(digits[0]);
                 operands[1] += Integer.parseInt(digits[1]);
-                if (operands[0] > 10 || operands[1] > 10) {
-                    throw new IllegalArgumentException("Неверный ввод, " +
-                            "одно из чисел больше 10 ");
-                }
             } else {
                 throw new NumberFormatException("Неправильный ввод, " +
                         "строка не является математической операцией ");
@@ -72,11 +69,17 @@ public class Utils {
             System.out.println("Кажется, вы не ввели операцию " +
                     "и слишком рано нажали Enter");
         }
+
+        if (operands[0] > 10 || operands[1] > 10) {
+            throw new IllegalArgumentException("Неверный ввод, " +
+                    "одно из чисел больше 10 ");
+        }
         return operands;
     }
 
     public String inputFromConsole() throws IOException {
         String string;
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             string = reader.readLine();
             reader.close();
@@ -89,6 +92,10 @@ public class Utils {
 
     public void outputInConsole(String input, String result) {
         if (checkIfRomeDigits(input)) {
+            if (Integer.parseInt(result) < 0) {
+                throw new IllegalArgumentException("Неправильный вывод. " +
+                        "в римской системе нет отрицательных чисел");
+            }
             String romeResult = Converters.switchToRomeDigits(Integer.parseInt(result));
             System.out.println(romeResult);
         } else if (checkIfArabicDigits(input)) {
