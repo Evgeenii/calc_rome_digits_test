@@ -1,5 +1,6 @@
 import java.io.IOException;
 
+
 public class Calculator implements Operation {
     static final String[] ROME_DIGITS = {"I", "V", "X", "L", "C", "D", "M"};
     static final String[] ARABIC_DIGITS = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
@@ -11,8 +12,7 @@ public class Calculator implements Operation {
         utils.outputInConsole(input, result);
     }
 
-    @Override
-    public String doOperation(String input) {
+    String doOperation(String input) {
         String operation = utils.getOperationFromInput(input);
         int[] numbers = utils.parseNumbersFromInput(input);
         int result = 0;

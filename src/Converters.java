@@ -9,7 +9,7 @@ public class Converters {
             case 'V' -> 5;
             case 'I' -> 1;
             default -> throw new NumberFormatException("Неправильно введена " +
-                    "римская цифра");
+                    "римская цифра.");
         };
     }
 

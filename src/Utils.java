@@ -36,7 +36,7 @@ public class Utils {
 
         if (counter > 1) {
             throw new IllegalStateException("Неверный ввод, формат математической операции " +
-                    "не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
+                    "не удовлетворяет заданию - два операнда и один оператор (+, -, /, *). ");
         }
 
         return operation;
@@ -63,16 +63,16 @@ public class Utils {
                 operands[1] += Integer.parseInt(digits[1]);
             } else {
                 throw new NumberFormatException("Неправильный ввод, " +
-                        "строка не является математической операцией ");
+                        "строка не является математической операцией. ");
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
             System.out.println("Кажется, вы не ввели операцию " +
-                    "и слишком рано нажали Enter");
+                    "и слишком рано нажали Enter.");
         }
 
         if (operands[0] > 10 || operands[1] > 10) {
             throw new IllegalArgumentException("Неверный ввод, " +
-                    "одно из чисел больше 10 ");
+                    "одно из чисел больше 10. ");
         }
         return operands;
     }
@@ -85,16 +85,17 @@ public class Utils {
             reader.close();
         }
         if (string.isEmpty()) {
-            throw new IllegalArgumentException("Вы ввели пустую строку");
+            throw new IllegalArgumentException("Вы ввели пустую строку. ");
         }
         return string;
     }
 
     public void outputInConsole(String input, String result) {
         if (checkIfRomeDigits(input)) {
-            if (Integer.parseInt(result) < 0) {
+            if (Integer.parseInt(result) <= 0) {
                 throw new IllegalArgumentException("Неправильный вывод. " +
-                        "в римской системе нет отрицательных чисел");
+                        "В римской системе нет отрицательных чисел / " +
+                        "в римской системе отсутствует ноль. ");
             }
             String romeResult = Converters.switchToRomeDigits(Integer.parseInt(result));
             System.out.println(romeResult);

@@ -1,5 +1,5 @@
-public interface Operation {
-    String doOperation(String input);
+interface Operation {
+
     int plus(int a, int b);
     int minus(int a, int b);
     int multiply(int a, int b);
